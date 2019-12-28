@@ -1,0 +1,6 @@
+- name: Ola
+  platform: telegram
+  chat_id: !secret chat_id_1
+- name: Terje
+  platform: telegram
+  chat_id: !secret chat_id_2

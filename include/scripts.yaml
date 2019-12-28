@@ -1,0 +1,10 @@
+telegram_ip_fornyet:
+  alias: 'send ip hvis endret'
+  sequence:
+    - service: notify.Ola
+      data_template:
+        message: '{{ states.sensor.ip_addresse.state }}'
+    - service: notify.Terje
+      data_template:
+        message: '{{ states.sensor.ip_addresse.state }}'
+

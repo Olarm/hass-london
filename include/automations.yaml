@@ -1,0 +1,97 @@
+       ##Systemrelatert
+
+  - alias: Endret IP addresse
+    hide_entity: true
+    trigger:
+      platform: state
+      entity_id: sensor.ip
+    action:
+      service: scripts.telegram_ip_fornyet
+ 
+  - alias: gi IP addresse
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/ip'
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'
+          message: '{{ states.sensor.ip_addresse.state }}'
+ 
+  - alias: list banned
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/banned'
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'
+          message: '{{ trigger.event.data.command }}'
+     
+ 
+  - alias: Login Failure
+    trigger:
+      platform: state
+      entity_id: persistent_notification.httplogin
+    condition:
+      condition: template
+      value_template: "{{ trigger.to_state.state != off }}"
+    action:
+      service: notify.ola
+      data:
+        message: "Failed Home Assistant login attempt!"
+ 
+ 
+       ## Eksterme kameraer
+
+
+# TODO: Get filename output from first command as input to filename 
+  - alias: Tripoli bilde
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/bilde'
+    action:
+      - service: shell_command.tripoli_photo
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'
+          data:
+            photo:
+              - file: /config/include/photos/test1.jpg
+                caption: 'test'
+          message: 'sending photo'
+
+  - alias: hello
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/hello'
+    action:
+      - service: shell_command.hello
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'
+          message: 'Hello!'
+
+### Klima
+#
+  - alias: Klima status
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/klima'
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'
+          message: "Røykvarsler 5: {{ states.sensor.fibaro_system_fgsd002_smoke_sensor_temperature.state }}\n
+                    Røykvarlser 4: {{ states.sensor.fibaro_system_fgsd002_smoke_sensor_temperature_2.state }}\n
+                    Røykvarsler 6: {{ states.sensor.fibaro_system_fgsd002_smoke_sensor_temperature_3.state }}"
